@@ -17,10 +17,15 @@ public class Player : MonoBehaviour
     private Animator anim;
     private SpriteRenderer sr;
     private const string WALK_ANIMATION = "Walk";
+    private const string GROUND_TAG = "Ground";
+    private const string ENEMY_TAG = "Enemy";
 
     private bool isJumpKeyPressed = false;
-    private const int maxJumpTimes = 1;
+    private int maxJumpTimes = 1;
     private int currentjumpTimes = 0;
+
+
+    private float minX = -131.3f, MaxX =171.9f;
 
     private void Awake()
     {
@@ -54,7 +59,12 @@ public class Player : MonoBehaviour
     {
         movementX = Input.GetAxisRaw("Horizontal");
 
-        transform.position += new Vector3(movementX, 0f, 0f) * moveForce * Time.deltaTime;
+        if (movementX >0 && transform.position.x < MaxX)// go to the right side
+            transform.position += new Vector3(movementX, 0f, 0f) * moveForce * Time.deltaTime;
+
+        if (movementX <0 && transform.position.x > minX)//go to the left side
+            transform.position += new Vector3(movementX, 0f, 0f) * moveForce * Time.deltaTime;
+
 
     }
 
@@ -80,8 +90,26 @@ public class Player : MonoBehaviour
 
     private void OnCollisionEnter2D(Collision2D collision)
     {
-        currentjumpTimes=0;
+        if (collision.gameObject.CompareTag(GROUND_TAG))
+        {
+            currentjumpTimes=0;
+        }
 
+        Debug.Log(collision.gameObject.name);
+
+        if(collision.gameObject.CompareTag(ENEMY_TAG))
+        {
+            Destroy(gameObject);
+
+        }
+    }
+
+    private void OnTriggerEnter2D(Collider2D collision)
+    {
+        if(collision.CompareTag(ENEMY_TAG))
+        {
+            Destroy(gameObject);
+        }
     }
 
     private void PlayerJump()
